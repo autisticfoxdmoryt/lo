@@ -1,59 +1,66 @@
 document.addEventListener("DOMContentLoaded", function() {
-    const elements = {
-        fileIcon: document.getElementById('fileIcon'),
-        editorIcon: document.getElementById('editorIcon'),
-        googleIcon: document.getElementById('googleIcon'),
-        fileWindow: document.getElementById('fileWindow'),
-        editorWindow: document.getElementById('editorWindow'),
-        googleWindow: document.getElementById('googleWindow'),
-        taskFile: document.getElementById('taskFile'),
-        taskEditor: document.getElementById('taskEditor'),
-        taskGoogle: document.getElementById('taskGoogle')
-    };
+    const player = document.getElementById('player');
+    const ai1 = document.getElementById('ai1');
+    const ai2 = document.getElementById('ai2');
+    const scoreDisplay = document.getElementById('score');
+    const timeDisplay = document.getElementById('time');
 
-    function toggleWindow(id) {
-        const win = elements[id];
-        win.style.display = win.style.display === 'none' ? 'block' : 'none';
+    let score = 0;
+    let startTime = Date.now();
+
+    function updateScore() {
+        scoreDisplay.textContent = `Score: ${score}`;
     }
 
-    function makeDraggable(element) {
-        let offsetX, offsetY;
-
-        element.addEventListener('mousedown', function(event) {
-            offsetX = event.clientX - element.getBoundingClientRect().left;
-            offsetY = event.clientY - element.getBoundingClientRect().top;
-
-            function onMouseMove(event) {
-                element.style.left = `${event.clientX - offsetX}px`;
-                element.style.top = `${event.clientY - offsetY}px`;
-            }
-
-            function onMouseUp() {
-                document.removeEventListener('mousemove', onMouseMove);
-                document.removeEventListener('mouseup', onMouseUp);
-            }
-
-            document.addEventListener('mousemove', onMouseMove);
-            document.addEventListener('mouseup', onMouseUp);
-        });
+    function updateTime() {
+        const elapsedTime = Math.floor((Date.now() - startTime) / 1000);
+        timeDisplay.textContent = `Time: ${elapsedTime}`;
     }
 
-    elements.fileIcon.addEventListener('click', () => toggleWindow('fileWindow'));
-    elements.editorIcon.addEventListener('click', () => toggleWindow('editorWindow'));
-    elements.googleIcon.addEventListener('click', () => toggleWindow('googleWindow'));
+    function moveCharacter(character, x, y) {
+        const rect = character.getBoundingClientRect();
+        character.style.left = `${rect.left + x}px`;
+        character.style.top = `${rect.top + y}px`;
+    }
 
-    elements.taskFile.addEventListener('click', () => toggleWindow('fileWindow'));
-    elements.taskEditor.addEventListener('click', () => toggleWindow('editorWindow'));
-    elements.taskGoogle.addEventListener('click', () => toggleWindow('googleWindow'));
+    function moveAI(ai, dx, dy) {
+        moveCharacter(ai, dx, dy);
+        const playerRect = player.getBoundingClientRect();
+        const aiRect = ai.getBoundingClientRect();
+        if (playerRect.left < aiRect.right && playerRect.right > aiRect.left &&
+            playerRect.top < aiRect.bottom && playerRect.bottom > aiRect.top) {
+            score += 1;
+            updateScore();
+            ai.style.top = `${Math.random() * (window.innerHeight - 50)}px`;
+            ai.style.left = `${Math.random() * (window.innerWidth - 50)}px`;
+        }
+    }
 
-    makeDraggable(elements.fileWindow);
-    makeDraggable(elements.editorWindow);
-    makeDraggable(elements.googleWindow);
+    function handleMovement(event) {
+        switch(event.key) {
+            case 'ArrowUp':
+                moveCharacter(player, 0, -5);
+                break;
+            case 'ArrowDown':
+                moveCharacter(player, 0, 5);
+                break;
+            case 'ArrowLeft':
+                moveCharacter(player, -5, 0);
+                break;
+            case 'ArrowRight':
+                moveCharacter(player, 5, 0);
+                break;
+        }
+    }
 
-    // Google Search Functionality
-    document.getElementById('searchButton').addEventListener('click', function() {
-        const query = document.getElementById('searchBox').value;
-        const searchFrame = document.getElementById('searchFrame');
-        searchFrame.src = `https://www.google.com/search?q=${encodeURIComponent(query)}`;
-    });
+    document.addEventListener('keydown', handleMovement);
+
+    function update() {
+        moveAI(ai1, Math.sin(Date.now() / 1000) * 2, Math.cos(Date.now() / 1000) * 2);
+        moveAI(ai2, Math.sin(Date.now() / 2000) * 2, Math.cos(Date.now() / 2000) * 2);
+        updateTime();
+        requestAnimationFrame(update);
+    }
+
+    update();
 });
