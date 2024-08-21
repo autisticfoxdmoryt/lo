@@ -1,44 +1,20 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>Fox OS</title>
+    <title>Fox Tag Game</title>
     <link rel="stylesheet" type="text/css" href="styles.css">
     <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/brython@3.9.5/brython.min.js"></script>
     <script type="text/javascript" src="scripts.js"></script>
 </head>
 <body onload="brython()">
-    <div id="desktop">
-        <div class="icon" id="fileIcon">📁 File Explorer</div>
-        <div class="icon" id="editorIcon">📝 Code Editor</div>
-        <div class="icon" id="googleIcon">🔍 Google</div>
-        <div class="window" id="fileWindow">
-            <div class="title-bar">File Explorer</div>
-            <div class="content" id="fileContent">Loading...</div>
-        </div>
-        <div class="window" id="editorWindow">
-            <div class="title-bar">Code Editor</div>
-            <div class="content">
-                <textarea id="codeEditor" placeholder="Write your script here..."></textarea>
-                <button id="runScript">Run Script</button>
-                <div id="editorOutput"></div>
-            </div>
-        </div>
-        <div class="window" id="googleWindow">
-            <div class="title-bar">Google</div>
-            <div class="content">
-                <input type="text" id="searchBox" placeholder="Search Google...">
-                <button id="searchButton">Search</button>
-                <iframe id="searchFrame" style="width:100%; height:400px;"></iframe>
-            </div>
-        </div>
-        <div id="taskbar">
-            <div class="task-item">Start</div>
-            <div id="taskIcons">
-                <div id="taskFile">📁 File Explorer</div>
-                <div id="taskEditor">📝 Code Editor</div>
-                <div id="taskGoogle">🔍 Google</div>
-            </div>
-        </div>
+    <div id="gameArea">
+        <div id="player" class="character">🐾</div>
+        <div id="ai1" class="character">🦊</div>
+        <div id="ai2" class="character">🦊</div>
+    </div>
+    <div id="info">
+        <div id="score">Score: 0</div>
+        <div id="time">Time: 0</div>
     </div>
     <script type="text/python" src="main.py"></script>
 </body>
