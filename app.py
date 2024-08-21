@@ -2,7 +2,7 @@ from flask import Flask, render_template, request, redirect, url_for, send_from_
 import os
 
 app = Flask(__name__)
-app.secret_key = 'your_secret_key_here'
+app.secret_key = '11ggr5335797345'
 VIDEO_FOLDER = 'videos'
 app.config['VIDEO_FOLDER'] = VIDEO_FOLDER
 
