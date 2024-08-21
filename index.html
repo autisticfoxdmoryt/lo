@@ -37,16 +37,30 @@
         renderer.setSize(window.innerWidth, window.innerHeight);
         document.body.appendChild(renderer.domElement);
 
-        // Create a ground plane with a simple grid
-        const planeGeometry = new THREE.PlaneGeometry(1000, 1000, 10, 10);
-        const planeMaterial = new THREE.MeshBasicMaterial({ color: 0x404040, wireframe: true });
+        // Create ground with a grid pattern
+        const planeGeometry = new THREE.PlaneGeometry(1000, 1000, 50, 50);
+        const planeMaterial = new THREE.MeshStandardMaterial({ color: 0x404040, roughness: 0.8, metalness: 0.2 });
         const ground = new THREE.Mesh(planeGeometry, planeMaterial);
         ground.rotation.x = - Math.PI / 2; // Rotate plane to be horizontal
         scene.add(ground);
 
+        // Add obstacles
+        function createObstacle(x, z, width, height, depth, color) {
+            const geometry = new THREE.BoxGeometry(width, height, depth);
+            const material = new THREE.MeshStandardMaterial({ color: color });
+            const obstacle = new THREE.Mesh(geometry, material);
+            obstacle.position.set(x, height / 2, z);
+            scene.add(obstacle);
+        }
+
+        // Example obstacles
+        createObstacle(50, 5, 10, 10, 10, 0x00ff00); // Green block
+        createObstacle(-50, 5, 10, 10, 10, 0xff0000); // Red block
+        createObstacle(0, 5, 10, 10, 10, 0x0000ff); // Blue block
+
         // Create a simple car-like object
-        const carGeometry = new THREE.BoxGeometry(1, 0.5, 0.5);
-        const carMaterial = new THREE.MeshBasicMaterial({ color: 0xff0000 });
+        const carGeometry = new THREE.BoxGeometry(2, 1, 1);
+        const carMaterial = new THREE.MeshStandardMaterial({ color: 0xff0000 });
         const car = new THREE.Mesh(carGeometry, carMaterial);
         scene.add(car);
 
