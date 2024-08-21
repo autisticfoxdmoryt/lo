@@ -13,8 +13,8 @@
         }
 
         #gameArea {
-            width: 800px;
-            height: 600px;
+            width: 640px;
+            height: 640px;
             position: relative;
             background-color: #000;
             margin: 0 auto;
@@ -46,20 +46,32 @@
             position: absolute;
         }
 
+        .wall {
+            background-color: #0000FF; /* Blue */
+            position: absolute;
+        }
+
         #info {
             text-align: center;
             color: #fff;
             font-size: 24px;
+            margin-top: 10px;
         }
     </style>
 </head>
 <body>
     <div id="gameArea">
         <div id="pacman"></div>
-        <div id="dot1" class="dot"></div>
-        <div id="dot2" class="dot"></div>
         <div id="ghost1" class="ghost"></div>
         <div id="ghost2" class="ghost"></div>
+        <div id="dot1" class="dot"></div>
+        <div id="dot2" class="dot"></div>
+        <div id="dot3" class="dot"></div>
+        <!-- Add more dots and walls as needed -->
+        <!-- Example walls -->
+        <div class="wall" style="width: 100px; height: 20px; top: 100px; left: 200px;"></div>
+        <div class="wall" style="width: 20px; height: 100px; top: 200px; left: 200px;"></div>
+        <!-- Add more walls -->
     </div>
     <div id="info">
         <div id="score">Score: 0</div>
@@ -68,30 +80,63 @@
         document.addEventListener("DOMContentLoaded", function() {
             const pacman = document.getElementById('pacman');
             const ghosts = [document.getElementById('ghost1'), document.getElementById('ghost2')];
-            const dots = [document.getElementById('dot1'), document.getElementById('dot2')];
+            const dots = [document.getElementById('dot1'), document.getElementById('dot2'), document.getElementById('dot3')];
             const scoreDisplay = document.getElementById('score');
 
             let score = 0;
             let pacmanX = 0;
             let pacmanY = 0;
             let ghostSpeed = 2;
+            const mazeWidth = 640;
+            const mazeHeight = 640;
 
             function updateScore() {
                 scoreDisplay.textContent = `Score: ${score}`;
             }
 
             function movePacman(dx, dy) {
-                pacmanX += dx;
-                pacmanY += dy;
-                pacman.style.left = `${pacmanX}px`;
-                pacman.style.top = `${pacmanY}px`;
-                checkCollisions();
+                let newX = pacmanX + dx;
+                let newY = pacmanY + dy;
+                if (isValidMove(newX, newY)) {
+                    pacmanX = newX;
+                    pacmanY = newY;
+                    pacman.style.left = `${pacmanX}px`;
+                    pacman.style.top = `${pacmanY}px`;
+                    checkCollisions();
+                }
+            }
+
+            function isValidMove(x, y) {
+                // Ensure Pac-Man stays within bounds
+                if (x < 0 || x >= mazeWidth || y < 0 || y >= mazeHeight) return false;
+
+                // Check for wall collisions
+                const walls = document.querySelectorAll('.wall');
+                for (const wall of walls) {
+                    const rect = wall.getBoundingClientRect();
+                    const pacmanRect = {
+                        left: pacmanX,
+                        top: pacmanY,
+                        right: pacmanX + pacman.offsetWidth,
+                        bottom: pacmanY + pacman.offsetHeight
+                    };
+                    if (pacmanRect.left < rect.right && pacmanRect.right > rect.left &&
+                        pacmanRect.top < rect.bottom && pacmanRect.bottom > rect.top) {
+                        return false;
+                    }
+                }
+                return true;
             }
 
             function checkCollisions() {
                 dots.forEach(dot => {
                     const dotRect = dot.getBoundingClientRect();
-                    const pacmanRect = pacman.getBoundingClientRect();
+                    const pacmanRect = {
+                        left: pacmanX,
+                        top: pacmanY,
+                        right: pacmanX + pacman.offsetWidth,
+                        bottom: pacmanY + pacman.offsetHeight
+                    };
                     if (pacmanRect.left < dotRect.right && pacmanRect.right > dotRect.left &&
                         pacmanRect.top < dotRect.bottom && pacmanRect.bottom > dotRect.top) {
                         dot.style.display = 'none'; // Hide dot
@@ -102,7 +147,12 @@
 
                 ghosts.forEach(ghost => {
                     const ghostRect = ghost.getBoundingClientRect();
-                    const pacmanRect = pacman.getBoundingClientRect();
+                    const pacmanRect = {
+                        left: pacmanX,
+                        top: pacmanY,
+                        right: pacmanX + pacman.offsetWidth,
+                        bottom: pacmanY + pacman.offsetHeight
+                    };
                     if (pacmanRect.left < ghostRect.right && pacmanRect.right > ghostRect.left &&
                         pacmanRect.top < ghostRect.bottom && pacmanRect.bottom > ghostRect.top) {
                         alert('Game Over! Your score: ' + score);
@@ -123,10 +173,14 @@
 
             function moveGhosts() {
                 ghosts.forEach(ghost => {
-                    const dx = (Math.random() - 0.5) * ghostSpeed;
-                    const dy = (Math.random() - 0.5) * ghostSpeed;
-                    ghost.style.left = `${parseFloat(ghost.style.left || 0) + dx}px`;
-                    ghost.style.top = `${parseFloat(ghost.style.top || 0) + dy}px`;
+                    let dx = (Math.random() - 0.5) * ghostSpeed;
+                    let dy = (Math.random() - 0.5) * ghostSpeed;
+                    let newX = parseFloat(ghost.style.left || 0) + dx;
+                    let newY = parseFloat(ghost.style.top || 0) + dy;
+                    if (isValidMove(newX, newY)) {
+                        ghost.style.left = `${newX}px`;
+                        ghost.style.top = `${newY}px`;
+                    }
                 });
             }
 
