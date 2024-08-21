@@ -3,206 +3,230 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Pac-Man Game</title>
+    <title>Parkour Game</title>
     <style>
         body {
             margin: 0;
             font-family: Arial, sans-serif;
-            background-color: #000;
+            overflow: hidden;
+            background-color: #87CEEB; /* Sky blue */
+        }
+
+        #gameContainer {
+            width: 100vw;
+            height: 100vh;
+            position: relative;
             overflow: hidden;
         }
 
         #gameArea {
-            width: 640px;
-            height: 640px;
-            position: relative;
-            background-color: #000;
-            margin: 0 auto;
-            border: 2px solid #fff;
-        }
-
-        .dot {
-            width: 20px;
-            height: 20px;
-            background-color: #FFD700; /* Gold */
-            border-radius: 50%;
+            width: 2000px; /* Wider than viewport to allow scrolling */
+            height: 100vh;
             position: absolute;
+            background-color: #8B4513; /* Ground color */
         }
 
-        #pacman {
+        .player, .enemy, .fox {
+            position: absolute;
+            border-radius: 50%;
+        }
+
+        .player {
             width: 40px;
             height: 40px;
-            background-color: #FFFF00; /* Yellow */
-            border-radius: 50%;
-            position: absolute;
-            transform: rotate(45deg); /* Make it look like Pac-Man */
+            background-color: #FFD700; /* Gold */
         }
 
-        .ghost {
+        .enemy {
             width: 40px;
             height: 40px;
             background-color: #FF6347; /* Tomato */
-            border-radius: 50%;
-            position: absolute;
         }
 
-        .wall {
-            background-color: #0000FF; /* Blue */
-            position: absolute;
+        .fox {
+            width: 50px;
+            height: 50px;
+            background-color: #FF4500; /* Orange Red */
+        }
+
+        .shield {
+            border: 2px solid #00FF00; /* Green */
         }
 
         #info {
-            text-align: center;
+            position: absolute;
+            top: 10px;
+            left: 10px;
             color: #fff;
             font-size: 24px;
-            margin-top: 10px;
         }
     </style>
 </head>
 <body>
-    <div id="gameArea">
-        <div id="pacman"></div>
-        <div id="ghost1" class="ghost"></div>
-        <div id="ghost2" class="ghost"></div>
-        <div id="dot1" class="dot"></div>
-        <div id="dot2" class="dot"></div>
-        <div id="dot3" class="dot"></div>
-        <!-- Add more dots and walls as needed -->
-        <!-- Example walls -->
-        <div class="wall" style="width: 100px; height: 20px; top: 100px; left: 200px;"></div>
-        <div class="wall" style="width: 20px; height: 100px; top: 200px; left: 200px;"></div>
-        <!-- Add more walls -->
-    </div>
-    <div id="info">
-        <div id="score">Score: 0</div>
+    <div id="gameContainer">
+        <div id="gameArea">
+            <div id="player" class="player"></div>
+            <div id="enemy1" class="enemy"></div>
+            <div id="enemy2" class="enemy"></div>
+            <div id="fox" class="fox"></div>
+        </div>
+        <div id="info">
+            <div id="score">Score: 0</div>
+            <div id="status">Status: Alive</div>
+        </div>
     </div>
     <script>
         document.addEventListener("DOMContentLoaded", function() {
-            const pacman = document.getElementById('pacman');
-            const ghosts = [document.getElementById('ghost1'), document.getElementById('ghost2')];
-            const dots = [document.getElementById('dot1'), document.getElementById('dot2'), document.getElementById('dot3')];
+            const player = document.getElementById('player');
+            const enemies = [document.getElementById('enemy1'), document.getElementById('enemy2')];
+            const fox = document.getElementById('fox');
             const scoreDisplay = document.getElementById('score');
+            const statusDisplay = document.getElementById('status');
 
             let score = 0;
-            let pacmanX = 0;
-            let pacmanY = 0;
-            let ghostSpeed = 2;
-            const mazeWidth = 640;
-            const mazeHeight = 640;
+            let isShieldActive = false;
+            let playerX = 100;
+            let playerY = 0;
+            const playerSpeed = 5;
+            const jumpHeight = 10;
+            const gravity = 0.5;
+            let velocityY = 0;
+            const enemySpeed = 3;
+            let gameOver = false;
 
             function updateScore() {
                 scoreDisplay.textContent = `Score: ${score}`;
             }
 
-            function movePacman(dx, dy) {
-                let newX = pacmanX + dx;
-                let newY = pacmanY + dy;
-                if (isValidMove(newX, newY)) {
-                    pacmanX = newX;
-                    pacmanY = newY;
-                    pacman.style.left = `${pacmanX}px`;
-                    pacman.style.top = `${pacmanY}px`;
-                    checkCollisions();
+            function movePlayer(dx, dy) {
+                if (gameOver) return;
+
+                playerX += dx;
+                playerY += dy;
+                player.style.left = `${playerX}px`;
+                player.style.top = `${playerY}px`;
+                checkCollisions();
+            }
+
+            function jump() {
+                if (gameOver) return;
+                if (playerY === 0) { // Can only jump if on the ground
+                    velocityY = -jumpHeight;
                 }
             }
 
-            function isValidMove(x, y) {
-                // Ensure Pac-Man stays within bounds
-                if (x < 0 || x >= mazeWidth || y < 0 || y >= mazeHeight) return false;
+            function activateShield() {
+                isShieldActive = true;
+                player.classList.add('shield');
+            }
 
-                // Check for wall collisions
-                const walls = document.querySelectorAll('.wall');
-                for (const wall of walls) {
-                    const rect = wall.getBoundingClientRect();
-                    const pacmanRect = {
-                        left: pacmanX,
-                        top: pacmanY,
-                        right: pacmanX + pacman.offsetWidth,
-                        bottom: pacmanY + pacman.offsetHeight
-                    };
-                    if (pacmanRect.left < rect.right && pacmanRect.right > rect.left &&
-                        pacmanRect.top < rect.bottom && pacmanRect.bottom > rect.top) {
-                        return false;
+            function deactivateShield() {
+                isShieldActive = false;
+                player.classList.remove('shield');
+            }
+
+            function moveEnemies() {
+                enemies.forEach(enemy => {
+                    const rect = enemy.getBoundingClientRect();
+                    const px = parseFloat(player.style.left || 0);
+                    const py = parseFloat(player.style.top || 0);
+                    const ex = parseFloat(enemy.style.left || 0);
+                    const ey = parseFloat(enemy.style.top || 0);
+
+                    if (ex < px) {
+                        enemy.style.left = `${ex + enemySpeed}px`;
+                    } else {
+                        enemy.style.left = `${ex - enemySpeed}px`;
                     }
-                }
-                return true;
+
+                    if (ey < py) {
+                        enemy.style.top = `${ey + enemySpeed}px`;
+                    } else {
+                        enemy.style.top = `${ey - enemySpeed}px`;
+                    }
+                });
             }
 
             function checkCollisions() {
-                dots.forEach(dot => {
-                    const dotRect = dot.getBoundingClientRect();
-                    const pacmanRect = {
-                        left: pacmanX,
-                        top: pacmanY,
-                        right: pacmanX + pacman.offsetWidth,
-                        bottom: pacmanY + pacman.offsetHeight
-                    };
-                    if (pacmanRect.left < dotRect.right && pacmanRect.right > dotRect.left &&
-                        pacmanRect.top < dotRect.bottom && pacmanRect.bottom > dotRect.top) {
-                        dot.style.display = 'none'; // Hide dot
-                        score += 10;
-                        updateScore();
+                enemies.forEach(enemy => {
+                    const enemyRect = enemy.getBoundingClientRect();
+                    const playerRect = player.getBoundingClientRect();
+                    if (playerRect.left < enemyRect.right && playerRect.right > enemyRect.left &&
+                        playerRect.top < enemyRect.bottom && playerRect.bottom > enemyRect.top) {
+                        if (isShieldActive) {
+                            // Player survives if shield is active
+                            deactivateShield();
+                        } else {
+                            gameOver = true;
+                            statusDisplay.textContent = 'Status: Game Over';
+                            alert('Game Over! Your score: ' + score);
+                        }
                     }
                 });
 
-                ghosts.forEach(ghost => {
-                    const ghostRect = ghost.getBoundingClientRect();
-                    const pacmanRect = {
-                        left: pacmanX,
-                        top: pacmanY,
-                        right: pacmanX + pacman.offsetWidth,
-                        bottom: pacmanY + pacman.offsetHeight
-                    };
-                    if (pacmanRect.left < ghostRect.right && pacmanRect.right > ghostRect.left &&
-                        pacmanRect.top < ghostRect.bottom && pacmanRect.bottom > ghostRect.top) {
-                        alert('Game Over! Your score: ' + score);
-                        resetGame();
-                    }
-                });
-            }
-
-            function resetGame() {
-                pacmanX = 0;
-                pacmanY = 0;
-                pacman.style.left = `${pacmanX}px`;
-                pacman.style.top = `${pacmanY}px`;
-                score = 0;
-                updateScore();
-                dots.forEach(dot => dot.style.display = 'block'); // Show dots
-            }
-
-            function moveGhosts() {
-                ghosts.forEach(ghost => {
-                    let dx = (Math.random() - 0.5) * ghostSpeed;
-                    let dy = (Math.random() - 0.5) * ghostSpeed;
-                    let newX = parseFloat(ghost.style.left || 0) + dx;
-                    let newY = parseFloat(ghost.style.top || 0) + dy;
-                    if (isValidMove(newX, newY)) {
-                        ghost.style.left = `${newX}px`;
-                        ghost.style.top = `${newY}px`;
-                    }
-                });
-            }
-
-            function handleMovement(event) {
-                switch(event.key) {
-                    case 'ArrowUp':
-                        movePacman(0, -10);
-                        break;
-                    case 'ArrowDown':
-                        movePacman(0, 10);
-                        break;
-                    case 'ArrowLeft':
-                        movePacman(-10, 0);
-                        break;
-                    case 'ArrowRight':
-                        movePacman(10, 0);
-                        break;
+                const foxRect = fox.getBoundingClientRect();
+                const playerRect = player.getBoundingClientRect();
+                if (playerRect.left < foxRect.right && playerRect.right > foxRect.left &&
+                    playerRect.top < foxRect.bottom && playerRect.bottom > foxRect.top) {
+                    score += 100;
+                    updateScore();
+                    alert('Congratulations! You reached the fox!');
+                    resetGame();
                 }
             }
 
-            document.addEventListener('keydown', handleMovement);
-            setInterval(moveGhosts, 1000); // Move ghosts every second
+            function resetGame() {
+                playerX = 100;
+                playerY = 0;
+                player.style.left = `${playerX}px`;
+                player.style.top = `${playerY}px`;
+                score = 0;
+                updateScore();
+                enemies.forEach(enemy => {
+                    enemy.style.left = `${Math.random() * 2000}px`;
+                    enemy.style.top = `${Math.random() * 600}px`;
+                });
+                fox.style.left = `${Math.random() * 2000}px`;
+                fox.style.top = `${Math.random() * 600}px`;
+                gameOver = false;
+                statusDisplay.textContent = 'Status: Alive';
+            }
+
+            function update() {
+                if (gameOver) return;
+
+                velocityY += gravity;
+                movePlayer(0, velocityY);
+
+                if (playerY > 0) {
+                    playerY = 0;
+                    velocityY = 0;
+                }
+
+                moveEnemies();
+                checkCollisions();
+                requestAnimationFrame(update);
+            }
+
+            document.addEventListener('keydown', event => {
+                if (event.key === 'ArrowUp') {
+                    jump();
+                } else if (event.key === 'ArrowLeft') {
+                    movePlayer(-playerSpeed, 0);
+                } else if (event.key === 'ArrowRight') {
+                    movePlayer(playerSpeed, 0);
+                } else if (event.key === 'Shift') {
+                    activateShield();
+                }
+            });
+
+            document.addEventListener('keyup', event => {
+                if (event.key === 'Shift') {
+                    deactivateShield();
+                }
+            });
+
+            update();
         });
     </script>
 </body>
