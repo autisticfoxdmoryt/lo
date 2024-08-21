@@ -1,0 +1,82 @@
+body {
+    margin: 0;
+    font-family: Arial, sans-serif;
+    background: #87CEEB;
+}
+
+#desktop {
+    position: relative;
+    width: 100vw;
+    height: 100vh;
+    overflow: hidden;
+}
+
+.icon {
+    width: 120px;
+    height: 80px;
+    background: #F0F0F0;
+    border: 1px solid #CCC;
+    text-align: center;
+    line-height: 60px;
+    margin: 10px;
+    cursor: pointer;
+    position: absolute;
+    user-select: none;
+}
+
+.window {
+    width: 400px;
+    height: 300px;
+    position: absolute;
+    border: 1px solid #333;
+    background: white;
+    box-shadow: 0 0 10px rgba(0,0,0,0.5);
+    display: none;
+}
+
+.title-bar {
+    background: #0078D4;
+    color: white;
+    padding: 5px;
+    cursor: move;
+    user-select: none;
+}
+
+.content {
+    padding: 10px;
+}
+
+#codeEditor {
+    width: 100%;
+    height: 200px;
+}
+
+#editorOutput {
+    margin-top: 10px;
+}
+
+#searchBox {
+    width: calc(100% - 100px);
+}
+
+#searchButton {
+    width: 80px;
+}
+
+#taskbar {
+    width: 100%;
+    height: 40px;
+    background: #333;
+    color: white;
+    display: flex;
+    align-items: center;
+    padding: 0 10px;
+    position: absolute;
+    bottom: 0;
+    left: 0;
+}
+
+.task-item {
+    margin-right: 20px;
+    cursor: pointer;
+}
