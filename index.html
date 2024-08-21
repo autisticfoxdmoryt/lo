@@ -1,19 +1,102 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>Python Game</title>
+    <title>Fox Adventure</title>
     <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/brython@3.9.5/brython.min.js"></script>
+    <style>
+        canvas { border: 1px solid black; display: block; margin: 0 auto; }
+    </style>
 </head>
 <body onload="brython()">
+    <canvas id="gameCanvas" width="800" height="400"></canvas>
     <script type="text/python">
-        # Your Python code here
-        from browser import document, alert
+        from browser import document, html, window
+        import math
+        
+        # Set up canvas
+        canvas = document["gameCanvas"]
+        ctx = canvas.getContext("2d")
+        
+        # Define the Fox character
+        class Fox:
+            def __init__(self, x, y):
+                self.x = x
+                self.y = y
+                self.width = 40
+                self.height = 30
+                self.color = "orange"
+                self.velocity = 0
+                self.jump_strength = 10
+                self.gravity = 0.5
+                self.on_ground = True
+            
+            def draw(self):
+                ctx.fillStyle = self.color
+                ctx.fillRect(self.x, self.y, self.width, self.height)
+            
+            def move(self, dx, dy):
+                self.x += dx
+                self.y += dy
+            
+            def jump(self):
+                if self.on_ground:
+                    self.velocity = -self.jump_strength
+                    self.on_ground = False
+            
+            def update(self):
+                # Gravity effect
+                self.velocity += self.gravity
+                self.y += self.velocity
+                
+                # Ground collision
+                if self.y + self.height > canvas.height - 20: # Assume ground level is at canvas.height - 20
+                    self.y = canvas.height - 20 - self.height
+                    self.velocity = 0
+                    self.on_ground = True
 
-        def greet(event):
-            alert("Hello, Brython!")
+        fox = Fox(100, canvas.height - 50)
 
-        document <= "<button id='btn'>Click me</button>"
-        document["btn"].bind("click", greet)
+        # Terrain
+        ground_level = canvas.height - 20
+        
+        def draw_ground():
+            ctx.fillStyle = "green"
+            ctx.fillRect(0, ground_level, canvas.width, 20)
+        
+        # Handle input
+        keys = {"ArrowRight": False, "ArrowLeft": False, "Space": False}
+
+        def key_down(event):
+            if event.code in keys:
+                keys[event.code] = True
+        
+        def key_up(event):
+            if event.code in keys:
+                keys[event.code] = False
+
+        document.bind("keydown", key_down)
+        document.bind("keyup", key_up)
+        
+        # Game loop
+        def game_loop():
+            ctx.clearRect(0, 0, canvas.width, canvas.height)
+            draw_ground()
+            fox.update()
+            
+            # Handle movement
+            if keys["ArrowRight"]:
+                fox.move(5, 0)
+            if keys["ArrowLeft"]:
+                fox.move(-5, 0)
+            if keys["Space"]:
+                fox.jump()
+            
+            fox.draw()
+            window.requestAnimationFrame(game_loop)
+
+        # Start the game loop
+        game_loop()
+
     </script>
 </body>
 </html>
