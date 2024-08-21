@@ -3,214 +3,86 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>2D Parkour Game</title>
+    <title>Simple 3D Environment</title>
     <style>
-        body {
-            margin: 0;
-            font-family: Arial, sans-serif;
-            overflow: hidden;
-            background-color: #1e1e1e; /* Dark background for futuristic look */
-        }
-
-        #gameArea {
-            width: 800px;
-            height: 600px;
-            position: relative;
-            margin: 0 auto;
-            background-color: #333; /* Slightly lighter background for the game */
-            border: 2px solid #00FF00; /* Neon green border */
-            overflow: hidden;
-        }
-
-        .block, .platform, .goal {
-            width: 40px;
-            height: 40px;
-            position: absolute;
-            box-sizing: border-box;
-        }
-
-        .platform {
-            background-color: #8B4513; /* Brown color for platforms */
-        }
-
-        .goal {
-            background-color: #FF4500; /* Bright orange for goal */
-        }
-
-        .player {
-            width: 40px;
-            height: 40px;
-            position: absolute;
-            background-color: #00008B; /* Dark blue color for player */
-            border: 1px solid #00FFFF; /* Light cyan border */
-        }
-
-        #info {
-            text-align: center;
-            color: #00FF00; /* Neon green text */
-            font-size: 24px;
-            margin-top: 10px;
-        }
-
-        #status {
-            font-size: 16px;
-        }
+        body { margin: 0; }
+        canvas { display: block; }
     </style>
 </head>
 <body>
-    <div id="gameArea">
-        <div id="player" class="player"></div>
-        <!-- Platforms and goal will be dynamically added here -->
-    </div>
-    <div id="info">
-        <div id="status">Use A/D to move, Space to jump. Reach the goal to win!</div>
-    </div>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
     <script>
-        document.addEventListener("DOMContentLoaded", function() {
-            const gameArea = document.getElementById('gameArea');
-            const player = document.getElementById('player');
-            const width = 800;  // Game area width
-            const height = 600; // Game area height
-            const blockSize = 40; // Size of each block in pixels
-            let playerX = 100;
-            let playerY = 0;
-            let velocityY = 0;
-            const playerSpeed = 5;
-            const jumpHeight = 12;
-            const gravity = 0.5;
-            let isJumping = false;
-            let isMoving = false;
-            let gameOver = false;
+        // Set up scene, camera, and renderer
+        const scene = new THREE.Scene();
+        const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
+        const renderer = new THREE.WebGLRenderer();
+        renderer.setSize(window.innerWidth, window.innerHeight);
+        document.body.appendChild(renderer.domElement);
 
-            function createPlatforms() {
-                // Example platforms
-                const platforms = [
-                    { x: 100, y: 500 },
-                    { x: 200, y: 450 },
-                    { x: 300, y: 400 },
-                    { x: 400, y: 350 },
-                    { x: 500, y: 300 },
-                    { x: 600, y: 250 }
-                ];
+        // Create a ground plane
+        const geometry = new THREE.PlaneGeometry(1000, 1000, 10, 10);
+        const material = new THREE.MeshBasicMaterial({ color: 0x808080, wireframe: true });
+        const ground = new THREE.Mesh(geometry, material);
+        ground.rotation.x = - Math.PI / 2; // Rotate plane to be horizontal
+        scene.add(ground);
 
-                platforms.forEach(platform => {
-                    const block = document.createElement('div');
-                    block.className = 'platform';
-                    block.style.left = `${platform.x}px`;
-                    block.style.top = `${platform.y}px`;
-                    gameArea.appendChild(block);
-                });
+        // Create a simple car-like object
+        const carGeometry = new THREE.BoxGeometry(1, 0.5, 0.5);
+        const carMaterial = new THREE.MeshBasicMaterial({ color: 0xff0000 });
+        const car = new THREE.Mesh(carGeometry, carMaterial);
+        scene.add(car);
 
-                // Goal
-                const goal = document.createElement('div');
-                goal.className = 'goal';
-                goal.style.left = '750px';
-                goal.style.top = '200px';
-                gameArea.appendChild(goal);
+        // Set initial camera position
+        camera.position.z = 5;
+
+        // Define car controls
+        let carSpeed = 0;
+        const carAcceleration = 0.05;
+        const carDeceleration = 0.01;
+        const maxSpeed = 0.5;
+
+        document.addEventListener('keydown', (event) => {
+            switch (event.key) {
+                case 'w':
+                    carSpeed = Math.min(carSpeed + carAcceleration, maxSpeed);
+                    break;
+                case 's':
+                    carSpeed = Math.max(carSpeed - carDeceleration, -maxSpeed);
+                    break;
+                case 'a':
+                    car.rotation.y += 0.05;
+                    break;
+                case 'd':
+                    car.rotation.y -= 0.05;
+                    break;
             }
+        });
 
-            function movePlayer(dx, dy) {
-                if (gameOver) return;
-
-                // Update player position
-                playerX += dx;
-                playerY += dy;
-
-                // Check collisions with game area boundaries
-                if (playerX < 0) playerX = 0;
-                if (playerX > width - blockSize) playerX = width - blockSize;
-                if (playerY < 0) playerY = 0;
-
-                player.style.left = `${playerX}px`;
-                player.style.top = `${playerY}px`;
-
-                checkCollisions();
+        document.addEventListener('keyup', (event) => {
+            if (event.key === 'w' || event.key === 's') {
+                carSpeed = 0;
             }
+        });
 
-            function jump() {
-                if (!isJumping) {
-                    velocityY = -jumpHeight;
-                    isJumping = true;
-                }
-            }
+        // Animation loop
+        function animate() {
+            requestAnimationFrame(animate);
 
-            function update() {
-                if (gameOver) return;
+            // Move car forward based on speed
+            car.position.x += carSpeed * Math.cos(car.rotation.y);
+            car.position.z += carSpeed * Math.sin(car.rotation.y);
 
-                if (isMoving) {
-                    // Update player position based on velocity
-                    movePlayer(0, velocityY);
-                }
+            // Render the scene
+            renderer.render(scene, camera);
+        }
 
-                // Apply gravity
-                velocityY += gravity;
+        animate();
 
-                // Move player based on gravity
-                movePlayer(0, velocityY);
-
-                // Check for collision with ground
-                if (playerY > height - blockSize) {
-                    playerY = height - blockSize;
-                    velocityY = 0;
-                    isJumping = false;
-                }
-
-                requestAnimationFrame(update);
-            }
-
-            function checkCollisions() {
-                const playerRect = player.getBoundingClientRect();
-                const goalRect = document.querySelector('.goal').getBoundingClientRect();
-                
-                // Check collision with goal
-                if (playerRect.left < goalRect.right && playerRect.right > goalRect.left &&
-                    playerRect.top < goalRect.bottom && playerRect.bottom > goalRect.top) {
-                    gameOver = true;
-                    document.getElementById('status').textContent = 'Congratulations! You reached the goal!';
-                }
-
-                // Check collision with platforms
-                document.querySelectorAll('.platform').forEach(platform => {
-                    const platformRect = platform.getBoundingClientRect();
-
-                    if (playerRect.left < platformRect.right && playerRect.right > platformRect.left &&
-                        playerRect.top < platformRect.bottom && playerRect.bottom > platformRect.top) {
-                        playerY = platformRect.top - blockSize;
-                        velocityY = 0;
-                        isJumping = false;
-                    }
-                });
-            }
-
-            function handleKeydown(event) {
-                if (gameOver) return;
-
-                switch (event.key) {
-                    case 'a':
-                        isMoving = true;
-                        movePlayer(-playerSpeed, 0);
-                        break;
-                    case 'd':
-                        isMoving = true;
-                        movePlayer(playerSpeed, 0);
-                        break;
-                    case ' ':
-                        jump();
-                        break;
-                }
-            }
-
-            function handleKeyup(event) {
-                if (event.key === 'a' || event.key === 'd') {
-                    isMoving = false;
-                }
-            }
-
-            createPlatforms();
-            update();
-
-            document.addEventListener('keydown', handleKeydown);
-            document.addEventListener('keyup', handleKeyup);
+        // Handle window resizing
+        window.addEventListener('resize', () => {
+            camera.aspect = window.innerWidth / window.innerHeight;
+            camera.updateProjectionMatrix();
+            renderer.setSize(window.innerWidth, window.innerHeight);
         });
     </script>
 </body>
