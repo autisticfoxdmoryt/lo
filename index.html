@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Parkour Game</title>
+    <title>2D Minecraft</title>
     <style>
         body {
             margin: 0;
@@ -12,221 +12,104 @@
             background-color: #87CEEB; /* Sky blue */
         }
 
-        #gameContainer {
-            width: 100vw;
-            height: 100vh;
+        #gameArea {
+            width: 800px;
+            height: 600px;
             position: relative;
+            margin: 0 auto;
+            background-color: #87CEEB; /* Sky blue */
+            border: 2px solid #000;
             overflow: hidden;
         }
 
-        #gameArea {
-            width: 2000px; /* Wider than viewport to allow scrolling */
-            height: 100vh;
-            position: absolute;
-            background-color: #8B4513; /* Ground color */
-        }
-
-        .player, .enemy, .fox {
-            position: absolute;
-            border-radius: 50%;
-        }
-
-        .player {
+        .block {
             width: 40px;
             height: 40px;
-            background-color: #FFD700; /* Gold */
+            float: left;
+            background-color: #8B4513; /* Brown color for dirt */
+            border: 1px solid #000;
         }
 
-        .enemy {
-            width: 40px;
-            height: 40px;
-            background-color: #FF6347; /* Tomato */
+        .air {
+            background-color: #87CEEB; /* Sky blue */
         }
 
-        .fox {
-            width: 50px;
-            height: 50px;
-            background-color: #FF4500; /* Orange Red */
-        }
-
-        .shield {
-            border: 2px solid #00FF00; /* Green */
+        .stone {
+            background-color: #A9A9A9; /* Dark grey color for stone */
         }
 
         #info {
-            position: absolute;
-            top: 10px;
-            left: 10px;
-            color: #fff;
+            text-align: center;
+            color: #000;
             font-size: 24px;
+            margin-top: 10px;
         }
     </style>
 </head>
 <body>
-    <div id="gameContainer">
-        <div id="gameArea">
-            <div id="player" class="player"></div>
-            <div id="enemy1" class="enemy"></div>
-            <div id="enemy2" class="enemy"></div>
-            <div id="fox" class="fox"></div>
-        </div>
-        <div id="info">
-            <div id="score">Score: 0</div>
-            <div id="status">Status: Alive</div>
-        </div>
+    <div id="gameArea"></div>
+    <div id="info">
+        <div id="status">Use arrow keys to move, left-click to place blocks, right-click to remove blocks.</div>
     </div>
     <script>
         document.addEventListener("DOMContentLoaded", function() {
-            const player = document.getElementById('player');
-            const enemies = [document.getElementById('enemy1'), document.getElementById('enemy2')];
-            const fox = document.getElementById('fox');
-            const scoreDisplay = document.getElementById('score');
-            const statusDisplay = document.getElementById('status');
+            const gameArea = document.getElementById('gameArea');
+            const width = 20;  // Number of blocks wide
+            const height = 15; // Number of blocks tall
+            const blockSize = 40; // Size of each block in pixels
+            const blocks = []; // Array to store block data
 
-            let score = 0;
-            let isShieldActive = false;
-            let playerX = 100;
-            let playerY = 0;
-            const playerSpeed = 5;
-            const jumpHeight = 10;
-            const gravity = 0.5;
-            let velocityY = 0;
-            const enemySpeed = 3;
-            let gameOver = false;
-
-            function updateScore() {
-                scoreDisplay.textContent = `Score: ${score}`;
-            }
-
-            function movePlayer(dx, dy) {
-                if (gameOver) return;
-
-                playerX += dx;
-                playerY += dy;
-                player.style.left = `${playerX}px`;
-                player.style.top = `${playerY}px`;
-                checkCollisions();
-            }
-
-            function jump() {
-                if (gameOver) return;
-                if (playerY === 0) { // Can only jump if on the ground
-                    velocityY = -jumpHeight;
-                }
-            }
-
-            function activateShield() {
-                isShieldActive = true;
-                player.classList.add('shield');
-            }
-
-            function deactivateShield() {
-                isShieldActive = false;
-                player.classList.remove('shield');
-            }
-
-            function moveEnemies() {
-                enemies.forEach(enemy => {
-                    const rect = enemy.getBoundingClientRect();
-                    const px = parseFloat(player.style.left || 0);
-                    const py = parseFloat(player.style.top || 0);
-                    const ex = parseFloat(enemy.style.left || 0);
-                    const ey = parseFloat(enemy.style.top || 0);
-
-                    if (ex < px) {
-                        enemy.style.left = `${ex + enemySpeed}px`;
-                    } else {
-                        enemy.style.left = `${ex - enemySpeed}px`;
+            function createWorld() {
+                for (let y = 0; y < height; y++) {
+                    blocks[y] = [];
+                    for (let x = 0; x < width; x++) {
+                        const block = document.createElement('div');
+                        block.className = 'block air'; // Initialize with air
+                        block.style.left = `${x * blockSize}px`;
+                        block.style.top = `${y * blockSize}px`;
+                        gameArea.appendChild(block);
+                        blocks[y][x] = block;
                     }
+                }
+                generateTerrain();
+            }
 
-                    if (ey < py) {
-                        enemy.style.top = `${ey + enemySpeed}px`;
-                    } else {
-                        enemy.style.top = `${ey - enemySpeed}px`;
+            function generateTerrain() {
+                // Simple terrain generation
+                for (let x = 0; x < width; x++) {
+                    for (let y = height - 1; y > height - 5; y--) {
+                        blocks[y][x].className = 'block stone';
                     }
-                });
-            }
-
-            function checkCollisions() {
-                enemies.forEach(enemy => {
-                    const enemyRect = enemy.getBoundingClientRect();
-                    const playerRect = player.getBoundingClientRect();
-                    if (playerRect.left < enemyRect.right && playerRect.right > enemyRect.left &&
-                        playerRect.top < enemyRect.bottom && playerRect.bottom > enemyRect.top) {
-                        if (isShieldActive) {
-                            // Player survives if shield is active
-                            deactivateShield();
-                        } else {
-                            gameOver = true;
-                            statusDisplay.textContent = 'Status: Game Over';
-                            alert('Game Over! Your score: ' + score);
-                        }
-                    }
-                });
-
-                const foxRect = fox.getBoundingClientRect();
-                const playerRect = player.getBoundingClientRect();
-                if (playerRect.left < foxRect.right && playerRect.right > foxRect.left &&
-                    playerRect.top < foxRect.bottom && playerRect.bottom > foxRect.top) {
-                    score += 100;
-                    updateScore();
-                    alert('Congratulations! You reached the fox!');
-                    resetGame();
                 }
             }
 
-            function resetGame() {
-                playerX = 100;
-                playerY = 0;
-                player.style.left = `${playerX}px`;
-                player.style.top = `${playerY}px`;
-                score = 0;
-                updateScore();
-                enemies.forEach(enemy => {
-                    enemy.style.left = `${Math.random() * 2000}px`;
-                    enemy.style.top = `${Math.random() * 600}px`;
-                });
-                fox.style.left = `${Math.random() * 2000}px`;
-                fox.style.top = `${Math.random() * 600}px`;
-                gameOver = false;
-                statusDisplay.textContent = 'Status: Alive';
+            function placeBlock(x, y, type) {
+                if (x >= 0 && x < width && y >= 0 && y < height) {
+                    blocks[y][x].className = `block ${type}`;
+                }
             }
 
-            function update() {
-                if (gameOver) return;
-
-                velocityY += gravity;
-                movePlayer(0, velocityY);
-
-                if (playerY > 0) {
-                    playerY = 0;
-                    velocityY = 0;
+            function removeBlock(x, y) {
+                if (x >= 0 && x < width && y >= 0 && y < height) {
+                    blocks[y][x].className = 'block air';
                 }
-
-                moveEnemies();
-                checkCollisions();
-                requestAnimationFrame(update);
             }
 
-            document.addEventListener('keydown', event => {
-                if (event.key === 'ArrowUp') {
-                    jump();
-                } else if (event.key === 'ArrowLeft') {
-                    movePlayer(-playerSpeed, 0);
-                } else if (event.key === 'ArrowRight') {
-                    movePlayer(playerSpeed, 0);
-                } else if (event.key === 'Shift') {
-                    activateShield();
+            function handleMouseClick(event) {
+                const x = Math.floor((event.clientX - gameArea.offsetLeft) / blockSize);
+                const y = Math.floor((event.clientY - gameArea.offsetTop) / blockSize);
+                if (event.button === 0) { // Left click
+                    placeBlock(x, y, 'stone');
+                } else if (event.button === 2) { // Right click
+                    removeBlock(x, y);
                 }
-            });
+                event.preventDefault(); // Prevent context menu
+            }
 
-            document.addEventListener('keyup', event => {
-                if (event.key === 'Shift') {
-                    deactivateShield();
-                }
-            });
+            document.addEventListener('mousedown', handleMouseClick);
+            document.addEventListener('contextmenu', event => event.preventDefault()); // Prevent context menu on right click
 
-            update();
+            createWorld();
         });
     </script>
 </body>
