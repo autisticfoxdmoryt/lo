@@ -17,10 +17,10 @@ document.addEventListener("DOMContentLoaded", function() {
         timeDisplay.textContent = `Time: ${elapsedTime}`;
     }
 
-    function moveCharacter(character, x, y) {
+    function moveCharacter(character, dx, dy) {
         const rect = character.getBoundingClientRect();
-        character.style.left = `${rect.left + x}px`;
-        character.style.top = `${rect.top + y}px`;
+        character.style.left = `${rect.left + dx}px`;
+        character.style.top = `${rect.top + dy}px`;
     }
 
     function moveAI(ai, dx, dy) {
