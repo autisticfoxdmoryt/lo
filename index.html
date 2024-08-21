@@ -1,12 +1,59 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Fox Tag Game</title>
-    <link rel="stylesheet" type="text/css" href="styles.css">
-    <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/brython@3.9.5/brython.min.js"></script>
-    <script type="text/javascript" src="scripts.js"></script>
+    <style>
+        body {
+            margin: 0;
+            font-family: Arial, sans-serif;
+            background-color: #87CEEB; /* Sky blue */
+            overflow: hidden;
+        }
+
+        #gameArea {
+            width: 100vw;
+            height: 80vh;
+            background-color: #8B4513; /* Ground color */
+            position: relative;
+        }
+
+        .character {
+            width: 50px;
+            height: 50px;
+            position: absolute;
+            font-size: 32px;
+            text-align: center;
+            line-height: 50px;
+            user-select: none;
+        }
+
+        #player {
+            background-color: #FFD700; /* Gold */
+        }
+
+        #ai1, #ai2 {
+            background-color: #FF6347; /* Tomato */
+        }
+
+        #info {
+            width: 100vw;
+            height: 20vh;
+            background-color: #333;
+            color: white;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 24px;
+        }
+
+        #score, #time {
+            margin: 0 20px;
+        }
+    </style>
 </head>
-<body onload="brython()">
+<body>
     <div id="gameArea">
         <div id="player" class="character">🐾</div>
         <div id="ai1" class="character">🦊</div>
@@ -16,6 +63,73 @@
         <div id="score">Score: 0</div>
         <div id="time">Time: 0</div>
     </div>
-    <script type="text/python" src="main.py"></script>
+    <script>
+        document.addEventListener("DOMContentLoaded", function() {
+            const player = document.getElementById('player');
+            const ai1 = document.getElementById('ai1');
+            const ai2 = document.getElementById('ai2');
+            const scoreDisplay = document.getElementById('score');
+            const timeDisplay = document.getElementById('time');
+
+            let score = 0;
+            let startTime = Date.now();
+
+            function updateScore() {
+                scoreDisplay.textContent = `Score: ${score}`;
+            }
+
+            function updateTime() {
+                const elapsedTime = Math.floor((Date.now() - startTime) / 1000);
+                timeDisplay.textContent = `Time: ${elapsedTime}`;
+            }
+
+            function moveCharacter(character, dx, dy) {
+                const rect = character.getBoundingClientRect();
+                character.style.left = `${rect.left + dx}px`;
+                character.style.top = `${rect.top + dy}px`;
+            }
+
+            function moveAI(ai, dx, dy) {
+                moveCharacter(ai, dx, dy);
+                const playerRect = player.getBoundingClientRect();
+                const aiRect = ai.getBoundingClientRect();
+                if (playerRect.left < aiRect.right && playerRect.right > aiRect.left &&
+                    playerRect.top < aiRect.bottom && playerRect.bottom > aiRect.top) {
+                    score += 1;
+                    updateScore();
+                    ai.style.top = `${Math.random() * (window.innerHeight - 50)}px`;
+                    ai.style.left = `${Math.random() * (window.innerWidth - 50)}px`;
+                }
+            }
+
+            function handleMovement(event) {
+                switch(event.key) {
+                    case 'ArrowUp':
+                        moveCharacter(player, 0, -5);
+                        break;
+                    case 'ArrowDown':
+                        moveCharacter(player, 0, 5);
+                        break;
+                    case 'ArrowLeft':
+                        moveCharacter(player, -5, 0);
+                        break;
+                    case 'ArrowRight':
+                        moveCharacter(player, 5, 0);
+                        break;
+                }
+            }
+
+            document.addEventListener('keydown', handleMovement);
+
+            function update() {
+                moveAI(ai1, Math.sin(Date.now() / 1000) * 2, Math.cos(Date.now() / 1000) * 2);
+                moveAI(ai2, Math.sin(Date.now() / 2000) * 2, Math.cos(Date.now() / 2000) * 2);
+                updateTime();
+                requestAnimationFrame(update);
+            }
+
+            update();
+        });
+    </script>
 </body>
 </html>
