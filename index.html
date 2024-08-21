@@ -76,9 +76,10 @@
             let playerY = 0;
             let velocityY = 0;
             const playerSpeed = 5;
-            const jumpHeight = 10;
+            const jumpHeight = 12;
             const gravity = 0.5;
             let isJumping = false;
+            let isMoving = false;
             let gameOver = false;
 
             function createPlatforms() {
@@ -111,8 +112,15 @@
             function movePlayer(dx, dy) {
                 if (gameOver) return;
 
+                // Update player position
                 playerX += dx;
                 playerY += dy;
+
+                // Check collisions with game area boundaries
+                if (playerX < 0) playerX = 0;
+                if (playerX > width - blockSize) playerX = width - blockSize;
+                if (playerY < 0) playerY = 0;
+
                 player.style.left = `${playerX}px`;
                 player.style.top = `${playerY}px`;
 
@@ -129,9 +137,18 @@
             function update() {
                 if (gameOver) return;
 
+                if (isMoving) {
+                    // Update player position based on velocity
+                    movePlayer(0, velocityY);
+                }
+
+                // Apply gravity
                 velocityY += gravity;
+
+                // Move player based on gravity
                 movePlayer(0, velocityY);
 
+                // Check for collision with ground
                 if (playerY > height - blockSize) {
                     playerY = height - blockSize;
                     velocityY = 0;
@@ -145,12 +162,14 @@
                 const playerRect = player.getBoundingClientRect();
                 const goalRect = document.querySelector('.goal').getBoundingClientRect();
                 
+                // Check collision with goal
                 if (playerRect.left < goalRect.right && playerRect.right > goalRect.left &&
                     playerRect.top < goalRect.bottom && playerRect.bottom > goalRect.top) {
                     gameOver = true;
                     document.getElementById('status').textContent = 'Congratulations! You reached the goal!';
                 }
 
+                // Check collision with platforms
                 document.querySelectorAll('.platform').forEach(platform => {
                     const platformRect = platform.getBoundingClientRect();
 
@@ -168,9 +187,11 @@
 
                 switch (event.key) {
                     case 'a':
+                        isMoving = true;
                         movePlayer(-playerSpeed, 0);
                         break;
                     case 'd':
+                        isMoving = true;
                         movePlayer(playerSpeed, 0);
                         break;
                     case ' ':
@@ -179,10 +200,17 @@
                 }
             }
 
+            function handleKeyup(event) {
+                if (event.key === 'a' || event.key === 'd') {
+                    isMoving = false;
+                }
+            }
+
             createPlatforms();
             update();
 
             document.addEventListener('keydown', handleKeydown);
+            document.addEventListener('keyup', handleKeyup);
         });
     </script>
 </body>
