@@ -3,13 +3,13 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>2D Minecraft</title>
+    <title>2D Parkour Game</title>
     <style>
         body {
             margin: 0;
             font-family: Arial, sans-serif;
             overflow: hidden;
-            background-color: #111; /* Dark background for futuristic look */
+            background-color: #1e1e1e; /* Dark background for futuristic look */
         }
 
         #gameArea {
@@ -17,33 +17,31 @@
             height: 600px;
             position: relative;
             margin: 0 auto;
-            background-color: #222; /* Slightly lighter background */
+            background-color: #333; /* Slightly lighter background for the game */
             border: 2px solid #00FF00; /* Neon green border */
             overflow: hidden;
-            box-shadow: 0 0 15px rgba(0, 255, 0, 0.5); /* Neon glow effect */
         }
 
-        .block {
+        .block, .platform, .goal {
             width: 40px;
             height: 40px;
-            float: left;
-            background-color: #8B4513; /* Brown color for dirt */
-            border: 1px solid #000;
+            position: absolute;
+            box-sizing: border-box;
         }
 
-        .air {
-            background-color: #222; /* Background color for air */
+        .platform {
+            background-color: #8B4513; /* Brown color for platforms */
         }
 
-        .stone {
-            background-color: #A9A9A9; /* Dark grey color for stone */
+        .goal {
+            background-color: #FF4500; /* Bright orange for goal */
         }
 
         .player {
             width: 40px;
             height: 40px;
             position: absolute;
-            background-color: #00008B; /* Dark blue color for Steve */
+            background-color: #00008B; /* Dark blue color for player */
             border: 1px solid #00FFFF; /* Light cyan border */
         }
 
@@ -62,110 +60,112 @@
 <body>
     <div id="gameArea">
         <div id="player" class="player"></div>
-        <!-- Blocks will be dynamically added here -->
+        <!-- Platforms and goal will be dynamically added here -->
     </div>
     <div id="info">
-        <div id="status">Use WASD to move, Space to jump. Left-click to place blocks, Right-click to remove blocks.</div>
+        <div id="status">Use A/D to move, Space to jump. Reach the goal to win!</div>
     </div>
     <script>
         document.addEventListener("DOMContentLoaded", function() {
             const gameArea = document.getElementById('gameArea');
             const player = document.getElementById('player');
-            const width = 20;  // Number of blocks wide
-            const height = 15; // Number of blocks tall
+            const width = 800;  // Game area width
+            const height = 600; // Game area height
             const blockSize = 40; // Size of each block in pixels
-            const blocks = []; // Array to store block data
             let playerX = 100;
             let playerY = 0;
             let velocityY = 0;
             const playerSpeed = 5;
             const jumpHeight = 10;
             const gravity = 0.5;
+            let isJumping = false;
+            let gameOver = false;
 
-            function createWorld() {
-                for (let y = 0; y < height; y++) {
-                    blocks[y] = [];
-                    for (let x = 0; x < width; x++) {
-                        const block = document.createElement('div');
-                        block.className = 'block air'; // Initialize with air
-                        block.style.left = `${x * blockSize}px`;
-                        block.style.top = `${y * blockSize}px`;
-                        gameArea.appendChild(block);
-                        blocks[y][x] = block;
-                    }
-                }
-                generateTerrain();
-            }
+            function createPlatforms() {
+                // Example platforms
+                const platforms = [
+                    { x: 100, y: 500 },
+                    { x: 200, y: 450 },
+                    { x: 300, y: 400 },
+                    { x: 400, y: 350 },
+                    { x: 500, y: 300 },
+                    { x: 600, y: 250 }
+                ];
 
-            function generateTerrain() {
-                // Simple terrain generation
-                for (let x = 0; x < width; x++) {
-                    for (let y = height - 1; y > height - 5; y--) {
-                        blocks[y][x].className = 'block stone';
-                    }
-                }
-            }
+                platforms.forEach(platform => {
+                    const block = document.createElement('div');
+                    block.className = 'platform';
+                    block.style.left = `${platform.x}px`;
+                    block.style.top = `${platform.y}px`;
+                    gameArea.appendChild(block);
+                });
 
-            function placeBlock(x, y, type) {
-                if (x >= 0 && x < width && y >= 0 && y < height) {
-                    blocks[y][x].className = `block ${type}`;
-                }
-            }
-
-            function removeBlock(x, y) {
-                if (x >= 0 && x < width && y >= 0 && y < height) {
-                    blocks[y][x].className = 'block air';
-                }
-            }
-
-            function handleMouseClick(event) {
-                const rect = gameArea.getBoundingClientRect();
-                const x = Math.floor((event.clientX - rect.left) / blockSize);
-                const y = Math.floor((event.clientY - rect.top) / blockSize);
-                if (event.button === 0) { // Left click
-                    placeBlock(x, y, 'stone');
-                } else if (event.button === 2) { // Right click
-                    removeBlock(x, y);
-                }
-                event.preventDefault(); // Prevent context menu
+                // Goal
+                const goal = document.createElement('div');
+                goal.className = 'goal';
+                goal.style.left = '750px';
+                goal.style.top = '200px';
+                gameArea.appendChild(goal);
             }
 
             function movePlayer(dx, dy) {
+                if (gameOver) return;
+
                 playerX += dx;
                 playerY += dy;
                 player.style.left = `${playerX}px`;
                 player.style.top = `${playerY}px`;
+
                 checkCollisions();
             }
 
             function jump() {
-                if (playerY === 0) { // Can only jump if on the ground
+                if (!isJumping) {
                     velocityY = -jumpHeight;
+                    isJumping = true;
                 }
             }
 
             function update() {
+                if (gameOver) return;
+
                 velocityY += gravity;
                 movePlayer(0, velocityY);
 
-                if (playerY > 0) {
-                    playerY = 0;
+                if (playerY > height - blockSize) {
+                    playerY = height - blockSize;
                     velocityY = 0;
+                    isJumping = false;
                 }
-
-                // Update game area to follow player
-                const gameAreaRect = gameArea.getBoundingClientRect();
-                gameArea.style.backgroundPositionX = `-${playerX - gameAreaRect.width / 2}px`;
-                gameArea.style.backgroundPositionY = `-${playerY - gameAreaRect.height / 2}px`;
 
                 requestAnimationFrame(update);
             }
 
             function checkCollisions() {
-                // You can implement collision logic here
+                const playerRect = player.getBoundingClientRect();
+                const goalRect = document.querySelector('.goal').getBoundingClientRect();
+                
+                if (playerRect.left < goalRect.right && playerRect.right > goalRect.left &&
+                    playerRect.top < goalRect.bottom && playerRect.bottom > goalRect.top) {
+                    gameOver = true;
+                    document.getElementById('status').textContent = 'Congratulations! You reached the goal!';
+                }
+
+                document.querySelectorAll('.platform').forEach(platform => {
+                    const platformRect = platform.getBoundingClientRect();
+
+                    if (playerRect.left < platformRect.right && playerRect.right > platformRect.left &&
+                        playerRect.top < platformRect.bottom && playerRect.bottom > platformRect.top) {
+                        playerY = platformRect.top - blockSize;
+                        velocityY = 0;
+                        isJumping = false;
+                    }
+                });
             }
 
             function handleKeydown(event) {
+                if (gameOver) return;
+
                 switch (event.key) {
                     case 'a':
                         movePlayer(-playerSpeed, 0);
@@ -179,12 +179,10 @@
                 }
             }
 
-            document.addEventListener('mousedown', handleMouseClick);
-            document.addEventListener('contextmenu', event => event.preventDefault()); // Prevent context menu on right click
-            document.addEventListener('keydown', handleKeydown);
-
-            createWorld();
+            createPlatforms();
             update();
+
+            document.addEventListener('keydown', handleKeydown);
         });
     </script>
 </body>
