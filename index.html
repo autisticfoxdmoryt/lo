@@ -9,7 +9,7 @@
             margin: 0;
             font-family: Arial, sans-serif;
             overflow: hidden;
-            background-color: #87CEEB; /* Sky blue */
+            background-color: #111; /* Dark background for futuristic look */
         }
 
         #gameArea {
@@ -17,9 +17,10 @@
             height: 600px;
             position: relative;
             margin: 0 auto;
-            background-color: #87CEEB; /* Sky blue */
-            border: 2px solid #000;
+            background-color: #222; /* Slightly lighter background */
+            border: 2px solid #00FF00; /* Neon green border */
             overflow: hidden;
+            box-shadow: 0 0 15px rgba(0, 255, 0, 0.5); /* Neon glow effect */
         }
 
         .block {
@@ -31,33 +32,55 @@
         }
 
         .air {
-            background-color: #87CEEB; /* Sky blue */
+            background-color: #222; /* Background color for air */
         }
 
         .stone {
             background-color: #A9A9A9; /* Dark grey color for stone */
         }
 
+        .player {
+            width: 40px;
+            height: 40px;
+            position: absolute;
+            background-color: #00008B; /* Dark blue color for Steve */
+            border: 1px solid #00FFFF; /* Light cyan border */
+        }
+
         #info {
             text-align: center;
-            color: #000;
+            color: #00FF00; /* Neon green text */
             font-size: 24px;
             margin-top: 10px;
+        }
+
+        #status {
+            font-size: 16px;
         }
     </style>
 </head>
 <body>
-    <div id="gameArea"></div>
+    <div id="gameArea">
+        <div id="player" class="player"></div>
+        <!-- Blocks will be dynamically added here -->
+    </div>
     <div id="info">
-        <div id="status">Use arrow keys to move, left-click to place blocks, right-click to remove blocks.</div>
+        <div id="status">Use WASD to move, Space to jump. Left-click to place blocks, Right-click to remove blocks.</div>
     </div>
     <script>
         document.addEventListener("DOMContentLoaded", function() {
             const gameArea = document.getElementById('gameArea');
+            const player = document.getElementById('player');
             const width = 20;  // Number of blocks wide
             const height = 15; // Number of blocks tall
             const blockSize = 40; // Size of each block in pixels
             const blocks = []; // Array to store block data
+            let playerX = 100;
+            let playerY = 0;
+            let velocityY = 0;
+            const playerSpeed = 5;
+            const jumpHeight = 10;
+            const gravity = 0.5;
 
             function createWorld() {
                 for (let y = 0; y < height; y++) {
@@ -96,8 +119,9 @@
             }
 
             function handleMouseClick(event) {
-                const x = Math.floor((event.clientX - gameArea.offsetLeft) / blockSize);
-                const y = Math.floor((event.clientY - gameArea.offsetTop) / blockSize);
+                const rect = gameArea.getBoundingClientRect();
+                const x = Math.floor((event.clientX - rect.left) / blockSize);
+                const y = Math.floor((event.clientY - rect.top) / blockSize);
                 if (event.button === 0) { // Left click
                     placeBlock(x, y, 'stone');
                 } else if (event.button === 2) { // Right click
@@ -106,10 +130,61 @@
                 event.preventDefault(); // Prevent context menu
             }
 
+            function movePlayer(dx, dy) {
+                playerX += dx;
+                playerY += dy;
+                player.style.left = `${playerX}px`;
+                player.style.top = `${playerY}px`;
+                checkCollisions();
+            }
+
+            function jump() {
+                if (playerY === 0) { // Can only jump if on the ground
+                    velocityY = -jumpHeight;
+                }
+            }
+
+            function update() {
+                velocityY += gravity;
+                movePlayer(0, velocityY);
+
+                if (playerY > 0) {
+                    playerY = 0;
+                    velocityY = 0;
+                }
+
+                // Update game area to follow player
+                const gameAreaRect = gameArea.getBoundingClientRect();
+                gameArea.style.backgroundPositionX = `-${playerX - gameAreaRect.width / 2}px`;
+                gameArea.style.backgroundPositionY = `-${playerY - gameAreaRect.height / 2}px`;
+
+                requestAnimationFrame(update);
+            }
+
+            function checkCollisions() {
+                // You can implement collision logic here
+            }
+
+            function handleKeydown(event) {
+                switch (event.key) {
+                    case 'a':
+                        movePlayer(-playerSpeed, 0);
+                        break;
+                    case 'd':
+                        movePlayer(playerSpeed, 0);
+                        break;
+                    case ' ':
+                        jump();
+                        break;
+                }
+            }
+
             document.addEventListener('mousedown', handleMouseClick);
             document.addEventListener('contextmenu', event => event.preventDefault()); // Prevent context menu on right click
+            document.addEventListener('keydown', handleKeydown);
 
             createWorld();
+            update();
         });
     </script>
 </body>
