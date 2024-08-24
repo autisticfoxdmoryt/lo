@@ -10,9 +10,7 @@ body {
 header {
     background-color: #161b22;
     padding: 20px;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
+    text-align: center;
     border-bottom: 2px solid #30363d;
 }
 
@@ -21,134 +19,55 @@ header h1 {
     color: #ff6f61;
 }
 
-header nav ul {
-    list-style-type: none;
-    margin: 0;
-    padding: 0;
+/* Chat Container */
+.chat-container {
+    padding: 20px;
+    max-width: 800px;
+    margin: auto;
+}
+
+.chat-box {
+    background-color: #161b22;
+    border-radius: 10px;
+    overflow: hidden;
     display: flex;
-    gap: 20px;
+    flex-direction: column;
+    height: 500px;
 }
 
-header nav a {
-    color: #c9d1d9;
-    text-decoration: none;
-    font-weight: bold;
-    transition: color 0.3s;
-}
-
-header nav a:hover {
-    color: #ff6f61;
-}
-
-/* Hero Section */
-.hero {
-    text-align: center;
-    padding: 100px 20px;
-    background: linear-gradient(135deg, #161b22 0%, #0d1117 100%);
+.chat-messages {
+    flex: 1;
+    padding: 10px;
+    overflow-y: auto;
     border-bottom: 2px solid #30363d;
-    background-image: url('fox-background.jpg');
-    background-size: cover;
-    background-blur: 5px;
-    color: #ff6f61;
 }
 
-.hero h2 {
-    font-size: 2.5rem;
-    margin-bottom: 20px;
-}
-
-.hero p {
-    font-size: 1.2rem;
-    color: #c9d1d9;
-    margin-bottom: 30px;
-}
-
-.cta-button {
-    padding: 15px 30px;
-    background-color: #ff6f61;
-    color: #0d1117;
-    text-transform: uppercase;
-    font-weight: bold;
-    text-decoration: none;
-    border-radius: 5px;
-    transition: background-color 0.3s;
-}
-
-.cta-button:hover {
-    background-color: #ff3b2a;
-}
-
-/* Products Section */
-.products {
-    padding: 50px 20px;
-}
-
-.products h3 {
-    text-align: center;
-    font-size: 2rem;
-    margin-bottom: 40px;
-    color: #ff6f61;
-}
-
-.product-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-    gap: 20px;
-}
-
-.product-card {
-    background-color: #161b22;
-    padding: 20px;
-    border-radius: 10px;
-    text-align: center;
-    transition: transform 0.3s, box-shadow 0.3s;
-}
-
-.product-card img {
-    max-width: 100%;
-    height: auto;
-    margin-bottom: 20px;
-    border-radius: 10px;
-}
-
-.product-card h4 {
-    margin-bottom: 10px;
-    color: #c9d1d9;
-}
-
-.product-card p {
-    color: #8b949e;
-}
-
-.product-card:hover {
-    transform: translateY(-10px);
-    box-shadow: 0 10px 20px rgba(0, 0, 0, 0.3);
-}
-
-/* Footer */
-footer {
-    background-color: #161b22;
-    text-align: center;
-    padding: 20px;
+.chat-form {
+    display: flex;
+    padding: 10px;
     border-top: 2px solid #30363d;
 }
 
-footer p {
-    margin: 0;
-    color: #8b949e;
+.chat-form input[type="text"] {
+    flex: 1;
+    padding: 10px;
+    margin-right: 10px;
+    border-radius: 5px;
+    border: 1px solid #30363d;
+    background-color: #0d1117;
+    color: #c9d1d9;
 }
 
-/* Responsive */
-@media (max-width: 768px) {
-    .hero h2 {
-        font-size: 2rem;
-    }
+.chat-form button {
+    padding: 10px 20px;
+    background-color: #ff6f61;
+    color: #0d1117;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: background-color 0.3s;
+}
 
-    .hero p {
-        font-size: 1rem;
-    }
-
-    .cta-button {
-        padding: 10px 20px;
-    }
+.chat-form button:hover {
+    background-color: #ff3b2a;
 }
