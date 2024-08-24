@@ -51,7 +51,7 @@ label {
     margin: 10px 0 5px;
 }
 
-input, select, button {
+input, button {
     padding: 10px;
     margin-bottom: 10px;
     border: 2px solid #4CAF50; /* Minecraft grass block green */
@@ -71,6 +71,8 @@ button:hover {
 a {
     color: #4CAF50; /* Minecraft grass block green */
     text-decoration: none;
+    display: block;
+    margin: 5px 0;
 }
 
 a:hover {
