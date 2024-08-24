@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Calls - Text App</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>Text App - Calls</h1>
+            <a href="index.html">Back to Profile</a>
+            <a href="chat.html">Chat</a>
+            <a href="server.html">Join/Create Server</a>
+            <a href="bot.html">Interact with Bots</a>
+        </header>
+        <main>
+            <h2>Make/Receive Calls</h2>
+            <form id="call-form">
+                <label for="call-number">Enter Number:</label>
+                <input type="text" id="call-number" placeholder="Enter phone number" required>
+                <button type="submit">Call</button>
+            </form>
+            <div id="call-status">
+                <!-- Call status will appear here -->
+            </div>
+        </main>
+        <footer>
+            <p>&copy; 2024 Text App</p>
+        </footer>
+    </div>
+    <script src="app.js"></script>
+</body>
+</html>
