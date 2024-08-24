@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Server Management - Text App</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>Text App - Server Management</h1>
+            <a href="index.html">Back to Profile</a>
+            <a href="chat.html">Chat</a>
+            <a href="bot.html">Interact with Bots</a>
+            <a href="call.html">Make/Receive Calls</a>
+        </header>
+        <main>
+            <h2>Manage Servers</h2>
+            <form id="server-form">
+                <label for="server-name">Create/Join Server:</label>
+                <input type="text" id="server-name" placeholder="Enter server name" required>
+                <button type="submit">Join/Create Server</button>
+            </form>
+            <div id="server-list">
+                <!-- List of servers will appear here -->
+            </div>
+        </main>
+        <footer>
+            <p>&copy; 2024 Text App</p>
+        </footer>
+    </div>
+    <script src="app.js"></script>
+</body>
+</html>
