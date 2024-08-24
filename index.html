@@ -12,8 +12,9 @@
     </header>
 
     <main>
-        <section class="chat-container">
-            <div class="chat-box">
+        <div id="chat-window" class="chat-window">
+            <div id="chat-header" class="chat-header">Chat Window</div>
+            <div id="chat-content" class="chat-content">
                 <div id="chat-messages" class="chat-messages"></div>
                 <form id="chat-form" class="chat-form">
                     <input type="text" id="username" placeholder="Your name" required />
@@ -21,7 +22,7 @@
                     <button type="submit">Send</button>
                 </form>
             </div>
-        </section>
+        </div>
     </main>
 
     <script src="script.js"></script>
