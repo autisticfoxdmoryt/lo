@@ -18,7 +18,7 @@ header {
 
 header h1 {
     margin: 0;
-    color: #58a6ff;
+    color: #ff6f61;
 }
 
 header nav ul {
@@ -37,7 +37,7 @@ header nav a {
 }
 
 header nav a:hover {
-    color: #58a6ff;
+    color: #ff6f61;
 }
 
 /* Hero Section */
@@ -46,23 +46,26 @@ header nav a:hover {
     padding: 100px 20px;
     background: linear-gradient(135deg, #161b22 0%, #0d1117 100%);
     border-bottom: 2px solid #30363d;
+    background-image: url('fox-background.jpg');
+    background-size: cover;
+    background-blur: 5px;
+    color: #ff6f61;
 }
 
 .hero h2 {
     font-size: 2.5rem;
-    color: #58a6ff;
     margin-bottom: 20px;
 }
 
 .hero p {
     font-size: 1.2rem;
-    color: #8b949e;
+    color: #c9d1d9;
     margin-bottom: 30px;
 }
 
 .cta-button {
     padding: 15px 30px;
-    background-color: #58a6ff;
+    background-color: #ff6f61;
     color: #0d1117;
     text-transform: uppercase;
     font-weight: bold;
@@ -72,7 +75,7 @@ header nav a:hover {
 }
 
 .cta-button:hover {
-    background-color: #1f6feb;
+    background-color: #ff3b2a;
 }
 
 /* Products Section */
@@ -84,7 +87,7 @@ header nav a:hover {
     text-align: center;
     font-size: 2rem;
     margin-bottom: 40px;
-    color: #58a6ff;
+    color: #ff6f61;
 }
 
 .product-grid {
