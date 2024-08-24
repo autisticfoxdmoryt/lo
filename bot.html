@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Bot Interaction - Text App</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>Text App - Bot Interaction</h1>
+            <a href="index.html">Back to Profile</a>
+            <a href="chat.html">Chat</a>
+            <a href="server.html">Join/Create Server</a>
+            <a href="call.html">Make/Receive Calls</a>
+        </header>
+        <main>
+            <h2>Interact with Bots</h2>
+            <form id="bot-form">
+                <label for="bot-command">Enter Bot Command:</label>
+                <input type="text" id="bot-command" placeholder="Type a command" required>
+                <button type="submit">Send Command</button>
+            </form>
+            <div id="bot-response">
+                <!-- Bot responses will appear here -->
+            </div>
+        </main>
+        <footer>
+            <p>&copy; 2024 Text App</p>
+        </footer>
+    </div>
+    <script src="app.js"></script>
+</body>
+</html>
