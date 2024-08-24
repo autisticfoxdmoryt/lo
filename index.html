@@ -3,44 +3,26 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Steve's Block Burgers - Order</title>
+    <title>Text App - Home</title>
     <link rel="stylesheet" href="styles.css">
 </head>
 <body>
     <div class="container">
         <header>
-            <h1>Steve's Block Burgers</h1>
-            <p>Welcome to the Minecraft-themed fast-food experience!</p>
+            <h1>Text App</h1>
         </header>
         <main>
-            <h2>Order Your Food</h2>
-            <form action="order_confirmation.html" method="GET">
-                <label for="name">Name:</label>
-                <input type="text" id="name" name="name" required>
-
-                <label for="item">Select Item:</label>
-                <select id="item" name="item" required>
-                    <option value="Steve's Classic Burger">Steve's Classic Burger - 5 Emeralds</option>
-                    <option value="Creeper Burger">Creeper Burger - 6 Emeralds</option>
-                    <option value="Enderman Burger">Enderman Burger - 7 Emeralds</option>
-                    <option value="Regular Pickaxe Fries">Regular Pickaxe Fries - 2 Emeralds</option>
-                    <option value="Diamond Pickaxe Fries">Diamond Pickaxe Fries - 3 Emeralds</option>
-                    <option value="Health Potion Soda">Health Potion Soda - 3 Emeralds</option>
-                    <option value="Regeneration Smoothie">Regeneration Smoothie - 4 Emeralds</option>
-                    <option value="Fire Resistance Juice">Fire Resistance Juice - 4 Emeralds</option>
-                    <option value="Golden Apple Pie">Golden Apple Pie - 3 Emeralds</option>
-                    <option value="Cake Block">Cake Block - 4 Emeralds</option>
-                </select>
-
-                <label for="quantity">Quantity:</label>
-                <input type="number" id="quantity" name="quantity" min="1" required>
-
-                <button type="submit">Place Order</button>
+            <h2>Create Your Profile</h2>
+            <form id="profile-form">
+                <label for="username">Enter Your Name:</label>
+                <input type="text" id="username" name="username" required>
+                <button type="submit">Create Profile</button>
             </form>
         </main>
         <footer>
-            <p>&copy; 2024 Steve's Block Burgers</p>
+            <p>&copy; 2024 Text App</p>
         </footer>
     </div>
+    <script src="app.js"></script>
 </body>
 </html>
