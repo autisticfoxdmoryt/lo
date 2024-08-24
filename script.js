@@ -2,6 +2,8 @@ const chatMessages = document.getElementById('chat-messages');
 const chatForm = document.getElementById('chat-form');
 const usernameInput = document.getElementById('username');
 const messageInput = document.getElementById('message');
+const chatWindow = document.getElementById('chat-window');
+const chatHeader = document.getElementById('chat-header');
 
 // Function to save chat messages to localStorage
 function saveMessage(username, message) {
@@ -42,3 +44,25 @@ loadMessages();
 
 // Periodically refresh the chat messages to stay in sync
 setInterval(loadMessages, 1000);
+
+// Dragging functionality
+let isDragging = false;
+let offsetX = 0;
+let offsetY = 0;
+
+chatHeader.addEventListener('mousedown', (event) => {
+    isDragging = true;
+    offsetX = event.clientX - chatWindow.getBoundingClientRect().left;
+    offsetY = event.clientY - chatWindow.getBoundingClientRect().top;
+});
+
+document.addEventListener('mousemove', (event) => {
+    if (isDragging) {
+        chatWindow.style.left = `${event.clientX - offsetX}px`;
+        chatWindow.style.top = `${event.clientY - offsetY}px`;
+    }
+});
+
+document.addEventListener('mouseup', () => {
+    isDragging = false;
+});
